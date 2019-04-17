@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Earthquake Map</title>
+	<meta name="viewport" content="initial-scale=1.0">
+	<meta charset="utf-8">
+	<!-- Development Version of Vue -->
+	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+	
+	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBV7nXkls3Zy6AZ4MoLqvNMMZLKyp5jvLI&callback=initMap"
+	async defer></script>
+	<script src="coffee-data.js"></script>
+</head>
+<body>
+	<div id="map"></div>
+	<div id="root">
+		<p><button id="worldZoomButton" @click="worldZoom">World Zoom</button></p>
+		<p><button id="defaultZoomButton" @click="defaultZoom">Default Zoom</button></p>
+		<p><button id="buildingZoomButton" @click="buildingZoom">Building Zoom</button></p>
+	</div>
+	
+	<link rel="stylesheet" href="css/stylesheet.css">
+	<script src="js/vue-components.js"></script>
+	<script src="js/main.js"></script>
+</body>
+</html>

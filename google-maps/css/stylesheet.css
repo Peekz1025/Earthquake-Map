@@ -1,0 +1,28 @@
+html, body {
+	height: 100%;
+	margin: 0;
+	padding: 0;
+}
+#map {
+	height: 100%;
+}
+button{
+	position: absolute;
+	color: red;
+	font-weight: bold;
+	height: 30px;
+	width: 140px;
+	z-index: 100;
+}
+#worldZoomButton{
+	top:100px;
+	left:10px;
+}
+#defaultZoomButton{
+	top:140px;
+	left:10px;
+}
+#buildingZoomButton{
+	top:180px;
+	left:10px;
+}
