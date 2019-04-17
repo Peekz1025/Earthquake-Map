@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Simple Map</title>
+	<meta name="viewport" content="initial-scale=1.0">
+	<meta charset="utf-8">
+	<style>
+		html, body {
+		height: 100%;
+		margin: 0;
+		padding: 0;
+		}
+		#map {
+		height: 100%;
+		}
+		button{
+			position: absolute;
+			color: red;
+			font-weight: bold;
+			height: 30px;
+			width: 140px;
+			z-index: 100;
+		}
+		#worldZoomButton{
+			top:100px;
+			left:10px;
+		}
+		#defaultZoomButton{
+			top:140px;
+			left:10px;
+		}
+		#buildingZoomButton{
+			top:180px;
+			left:10px;
+		}
+	</style>
+	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBV7nXkls3Zy6AZ4MoLqvNMMZLKyp5jvLI&callback=initMap"
+	async defer></script>
+	<script src="coffee-data.js"></script>
+</head>
+<body>
+	<div id="map"></div>
+	
+	<p><button id="worldZoomButton">World Zoom (1)</button></p>
+	<p><button id="defaultZoomButton">Default Zoom (16)</button></p>
+	<p><button id="buildingZoomButton">Building Zoom (20)</button></p>
+
+	
+	<script>
+		var infowindow;
+		var map;
+		function initMap() {
+			let mapOptions = {
+				center: {lat: 43.083848, lng: -77.6799},
+				zoom: 16,
+				mapTypeId: google.maps.MapTypeId.ROADMAP
+			};
+			map = new google.maps.Map(document.getElementById('map'), mapOptions);
+			
+			for(let i =0;i < coffeeShops.length;i++){
+				addMarker(coffeeShops[i].latitude, coffeeShops[i].longitude, coffeeShops[i].title);
+			}
+			
+			map.mapTypeId = 'satellite';
+			map.setTilt(45);
+		}
+		
+		document.querySelector("#worldZoomButton").onclick = function(){
+			map.setZoom(1);
+		};
+		document.querySelector("#defaultZoomButton").onclick = function(){
+			map.setZoom(16);
+		};
+		document.querySelector("#buildingZoomButton").onclick = function(){
+			map.setZoom(20);
+		};
+		
+		function addMarker(latitude, longitude, title) {
+			let position = {lat:latitude,lng:longitude};
+		 	let marker = new google.maps.Marker({position: position, map:map});
+		 	marker.setTitle(title);
+			
+			// Add a listener for the click event
+			google.maps.event.addListener(marker, 'click', function(e){
+			makeInfoWindow(this.position,this.title);
+			});
+		}
+		
+		function makeInfoWindow(position,msg){
+			// Close old InfoWindow if it exists
+			if(infowindow){
+				infowindow.close();
+			}
+
+			// Make a new InfoWindow
+			infowindow = new google.maps.InfoWindow({
+				map: map,
+				position: position,
+				content: "<b>" + msg + "</b>"
+			});
+		}
+		
+	</script>
+</body>
+</html>
