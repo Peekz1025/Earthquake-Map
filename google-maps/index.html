@@ -1,26 +1,44 @@
-<!DOCTYPE html>
-<html>
+﻿<!DOCTYPE html>
+<html lang="en">
+
 <head>
-	<title>Earthquake Map</title>
-	<meta name="viewport" content="initial-scale=1.0">
-	<meta charset="utf-8">
-	<!-- Development Version of Vue -->
-	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-	
-	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBV7nXkls3Zy6AZ4MoLqvNMMZLKyp5jvLI&callback=initMap"
-	async defer></script>
-	<script src="coffee-data.js"></script>
+    <meta charset="utf-8">
+    <title>Earthquake Map</title>
+    <meta name="viewport" content="initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="css/stylesheet.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 </head>
+
+<!-- Content -->
+
 <body>
-	<div id="map"></div>
-	<div id="root">
-		<p><button id="worldZoomButton" @click="worldZoom">World Zoom</button></p>
-		<p><button id="defaultZoomButton" @click="defaultZoom">Default Zoom</button></p>
-		<p><button id="buildingZoomButton" @click="buildingZoom">Building Zoom</button></p>
-	</div>
-	
-	<link rel="stylesheet" href="css/stylesheet.css">
-	<script src="js/vue-components.js"></script>
-	<script src="js/main.js"></script>
+    <div id="root">
+        <div id="map"></div>
+        <p>
+            <button @click="setZoom(1)" id="worldZoomButton">World Zoom (1)</button>
+            <button @click="setZoom(16)" id="defaultZoomButton">Default Zoom (16)</button>
+            <button @click="setZoom(20)" id="buildingZoomButton">Building Zoom (20)</button>
+            <button @click="setZoom(18)" id="isometricZoomButton">Isometric View (18)</button>
+        </p>
+
+        <p>
+            <button @click="search" id="search">Search Earthquakes</button>
+            <select id="distance">
+                    <option value="200">200km</option>
+                    <option value="400">400km</option>
+                    <option value="600">600km</option>
+                    <option value="800">800km</option>
+                    <option selected value="1000">1000km</option>
+                    <option value="2000">2000km</option>
+                    <option value="5000">5000km</option>
+                </select>
+        </p>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/main.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAWzbHsMCz2SIim1JugMAbbdEdIU_oXajM&callback=app.initMap" async
+        defer></script>
 </body>
+
 </html>

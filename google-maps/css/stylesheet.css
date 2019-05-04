@@ -1,54 +1,76 @@
-html, body {
-	height: 100%;
-	margin: 0;
-	padding: 0;
-}
-#map {
-	height: 100%;
+@import url("https://fonts.googleapis.com/css?family=Roboto");
+
+html,
+body {
+  height: 100vh;
+  width: 100vh;
+  margin: 0;
+  padding: 0;
+  font-family: "Roboto", sans-serif;
 }
 
-button {
-	position: absolute;
-	font-weight: bold;
-	height: 40px;
-	width: 185px;
-	z-index: 100;
-	
-	display: inline-block;
-	//padding: 15px 25px;
-	font-size: 20px;
-	cursor: pointer;
-	text-align: center;
-	text-decoration: none;
-	outline: none;
-	color: #fff;
-	background-color: #4CAF50;
-	border: none;
-	border-radius: 15px;
-	box-shadow: 0 6px #999;
+#map {
+  height: 100vh;
+  width: 100vh;
+}
+
+button,
+#distance {
+  position: absolute;
+  height: 30px;
+  width: 175px;
+  z-index: 100;
+  display: inline-block;
+  font-size: 18px;
+  font-family: "Roboto", sans-serif;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  outline: none;
+  color: #5b5656;
+  background-color: #ffff;
+  border: none;
+  border-radius: 2px;
+  box-shadow: 0px 1px 3px grey;
 }
 
 button:hover {
-	background-color: #3e8e41
+  background-color: #ebebeb;
+  color: #000000;
 }
 
 button:active {
-  background-color: #3e8e41;
-  box-shadow: 0 5px #666;
+  background-color: #ebebeb;
+  color: #000000;
   transform: translateY(4px);
 }
 
-#worldZoomButton{
-	top:100px;
-	left:10px;
+#worldZoomButton {
+  top: 100px;
+  left: 10px;
 }
 
-#defaultZoomButton{
-	top:160px;
-	left:10px;
+#defaultZoomButton {
+  top: 140px;
+  left: 10px;
 }
 
-#buildingZoomButton{
-	top:220px;
-	left:10px;
+#buildingZoomButton {
+  top: 180px;
+  left: 10px;
+}
+
+#isometricZoomButton {
+  top: 220px;
+  left: 10px;
+}
+
+#search {
+  top: 300px;
+  left: 10px;
+}
+
+#distance {
+  top: 340px;
+  left: 10px;
 }
