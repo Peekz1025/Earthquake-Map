@@ -1,4 +1,5 @@
 ﻿<!DOCTYPE html>
+<<<<<<< HEAD
 <html lang="en">
 
 <head>
@@ -6,6 +7,16 @@
     <title>Earthquake Map</title>
     <meta name="viewport" content="initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="css/stylesheet.css">
+=======
+<html>
+
+<head>
+    <title>Earthquake Map</title>
+    <meta name="viewport" content="initial-scale=1.0">
+    <meta charset="utf-8">
+
+    <!-- Vue and APIs -->
+>>>>>>> 96eb88b6318432e7fafd300acbfa309a21e9fb9c
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 </head>
 
@@ -14,6 +25,7 @@
 <body>
     <div id="root">
         <div id="map"></div>
+<<<<<<< HEAD
         <p>
             <button @click="setZoom(1)" id="worldZoomButton">World Zoom (1)</button>
             <button @click="setZoom(16)" id="defaultZoomButton">Default Zoom (16)</button>
@@ -33,12 +45,25 @@
                     <option value="5000">5000km</option>
                 </select>
         </p>
+=======
+
+        <button id="worldZoomButton" @click="worldZoom">World Zoom</button>
+        <button id="defaultZoomButton" @click="defaultZoom">Default Zoom</button>
+        <button id="buildingZoomButton" @click="buildingZoom">Building Zoom</button>
+>>>>>>> 96eb88b6318432e7fafd300acbfa309a21e9fb9c
     </div>
 
     <!-- Scripts -->
     <script src="js/main.js"></script>
+<<<<<<< HEAD
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAWzbHsMCz2SIim1JugMAbbdEdIU_oXajM&callback=app.initMap" async
         defer></script>
+=======
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAWzbHsMCz2SIim1JugMAbbdEdIU_oXajM&callback=initMap"
+        async defer></script>
+    <link rel="stylesheet" href="css/stylesheet.css">
+
+>>>>>>> 96eb88b6318432e7fafd300acbfa309a21e9fb9c
 </body>
 
 </html>
