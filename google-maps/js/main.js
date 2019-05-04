@@ -3,18 +3,22 @@
 	Make `app` a global by using `var`, now we can ...&callback=app.initMap from the link above
 */
 var app = new Vue({
-  el: "#root",
+  el: "#app",
   data: {
     URL:
       "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&eventtype=earthquake&minmagnitude=1.0",
-    center: { lat: 43.083848, lng: -77.6799 }
+    center: { lat: 43.083848, lng: -77.6799 },
+    limit: 10,
+    markers: [],
+    radius: 250,
+    year: 2019
   },
   methods: {
     // <--- GOOGLE MAPS API --->
     initMap() {
       const mapOptions = {
         center: { lat: 43.083848, lng: -77.6799 },
-        zoom: 16,
+        zoom: 6,
         mapTypeId: google.maps.MapTypeId.ROADMAP
       };
 
@@ -22,8 +26,12 @@ var app = new Vue({
         document.getElementById("map"),
         mapOptions
       );
-      this.map.mapTypeId = "satellite";
-      this.map.setTilt(45);
+
+      let starterMarker = new google.maps.Marker({
+        position: this.center,
+        map: this.map
+      });
+
     },
 
     addMarker(latitude, longitude, title) {
@@ -32,9 +40,12 @@ var app = new Vue({
         position: position,
         map: this.map
       });
+
+      this.markers.push(marker);
+
       marker.setTitle(title);
       // Add a listener for the click event
-      google.maps.event.addListener(marker, "click", function(e) {
+      google.maps.event.addListener(marker, "click", function (e) {
         // `this` doesn't work here - because it refers to the marker that was clicked on - use `app` instead
         app.makeInfoWindow(this.position, this.title);
       });
@@ -59,44 +70,31 @@ var app = new Vue({
     // <--- EARTHQUAKE API --->
 
     search() {
-      // Zoom out on map according to distance
-      if(document.querySelector("#distance").value == 5000){
-        this.map.setZoom(3);
-      }
-      else if(document.querySelector("#distance").value == (1000 || 2000)){
-        this.map.setZoom(4);
-      }
-      else if(document.querySelector("#distance").value == (600 || 800)){
-        this.map.setZoom(6);
-      }
-      else if(document.querySelector("#distance").value == (200 || 400)){
-        this.map.setZoom(8);
-      }
-      
-      // today's date
-      let now = new Date();
-      let nowYear = now.getFullYear();
-      let nowMonth = now.getMonth() + 1;
-      let nowDate = now.getDate();
+      this.deleteMarkers();
 
-      // yesterday's date
-      let lastWeek = new Date();
-      lastWeek.setDate(lastWeek.getDate() - 7);
-      let lastWeekYear = lastWeek.getFullYear();
-      let lastWeekMonth = lastWeek.getMonth() + 1;
-      let lastWeekDate = lastWeek.getDate();
+      // end date
+      let endDate = new Date(this.year, 11, 31);
+      let endYear = endDate.getFullYear();
+      let endMonth = endDate.getMonth();
+      let endDay = endDate.getDate();
+
+      // start date
+      let startDate = new Date(this.year, 1, 1);
+      let startYear = startDate.getFullYear();
+      let startMonth = startDate.getMonth();
+      let startDay = startDate.getDate();
 
       // build url
       let url = this.URL;
       url += "&latitude=" + this.center.lat;
       url += "&longitude=" + this.center.lng;
 
-      url += "&maxradiuskm=" + document.querySelector("#distance").value;
+      url += "&maxradiuskm=" + document.querySelector("#maxRadius").value;
 
       // starttime=2016-01-01&endtime=2016-01-02
       url +=
-        "&starttime=" + lastWeekYear + "-" + lastWeekMonth + "-" + lastWeekDate;
-      url += "&endtime=" + nowYear + "-" + nowMonth + "-" + nowDate;
+        "&starttime=" + startYear + "-" + startMonth + "-" + startDay;
+      url += "&endtime=" + endYear + "-" + endMonth + "-" + endDay;
 
       let xhr = new XMLHttpRequest();
       xhr.onload = this.jsonLoaded;
@@ -117,12 +115,12 @@ var app = new Vue({
       xhr.send();
     },
 
-
     jsonLoaded(e) {
       let xhr = e.target;
       console.log(
         `LOADED: xhr.readyState = ${xhr.readyState}, loaded = ${e.loaded}`
       );
+
       if (xhr.readyState != xhr.DONE) return;
 
       let responseText = xhr.responseText;
@@ -132,12 +130,30 @@ var app = new Vue({
       let count = obj.metadata.count;
 
       // bail out if there are no results
-      if (!count) return;
+      if (!count) {
+        // Displays error message when no search results found
+        document.querySelector("#searchError").style.margin = "-4%";
+        document.querySelector("#searchError").style.transform = "scale(1)";
+        document.querySelector("#searchError").style.opacity = 1;
+
+        return;
+      }
+
+      // Hides error message
+      document.querySelector("#searchError").style.margin = "-15%";
+      document.querySelector("#searchError").style.transform = "scale(0)";
+      document.querySelector("#searchError").style.opacity = 0;
 
       //  build up a list of the results
       let earthquakes = obj.features;
 
+      let limitCount = 0;
+
       for (let quake of earthquakes) {
+        if (limitCount == limit.value) {
+          return;
+        }
+
         let properties = quake.properties;
         let title = properties.title;
         let url = properties.url;
@@ -145,7 +161,17 @@ var app = new Vue({
         let latitude = quake.geometry.coordinates[1];
 
         this.addMarker(latitude, longitude, title);
+
+        limitCount++;
       }
+    },
+
+    // Deletes all markers in the array by removing references to them.
+    deleteMarkers() {
+      for (let i = 0; i < this.markers.length; i++) {
+        this.markers[i].setMap(null);
+      }
+      this.markers = [];
     }
   }
 });

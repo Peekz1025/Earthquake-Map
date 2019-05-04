@@ -6,39 +6,78 @@
     <title>Earthquake Map</title>
     <meta name="viewport" content="initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="css/stylesheet.css">
+
+    <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
+
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 </head>
 
 <!-- Content -->
 
 <body>
-    <div id="root">
-        <div id="map"></div>
-        <p>
-            <button @click="setZoom(1)" id="worldZoomButton">World Zoom (1)</button>
-            <button @click="setZoom(16)" id="defaultZoomButton">Default Zoom (16)</button>
-            <button @click="setZoom(20)" id="buildingZoomButton">Building Zoom (20)</button>
-            <button @click="setZoom(18)" id="isometricZoomButton">Isometric View (18)</button>
-        </p>
 
-        <p>
-            <button @click="search" id="search">Search Earthquakes</button>
-            <select id="distance">
-                    <option value="200">200km</option>
-                    <option value="400">400km</option>
-                    <option value="600">600km</option>
-                    <option value="800">800km</option>
-                    <option selected value="1000">1000km</option>
-                    <option value="2000">2000km</option>
-                    <option value="5000">5000km</option>
+    <div id="map"></div>
+
+    <div id="app">
+        <div id="controls">
+            <p>
+                <button @click="setZoom(3)" id="worldZoomButton">World Zoom</button>
+                <button @click="setZoom(6)" id="defaultZoomButton">Default Zoom</button>
+            </p>
+
+            <p class="inputField" id="resultLimit">Max Results:
+                <select id="limit" v-model="limit">
+                    <option value="5">5</option>
+                    <option value="10" selected>10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
                 </select>
-        </p>
+            </p>
+
+            <p class="inputField">Search Year: {{year}}
+                <input type="range" max="2019" min="1921" step="1" v-model="year" class="slider">
+            </p>
+
+            <p class="inputField">Max Radius: {{radius}}km
+                <input id="maxRadius" type="range" max="5000" min="0" step="50" v-model="radius" class="slider">
+            </p>
+
+            <button @click="search" id="search">Search</button>
+
+            <div id="searchError">
+                <p>Search yielded no results.</p>
+            </div>
+
+        </div>
     </div>
 
     <!-- Scripts -->
     <script src="js/main.js"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAWzbHsMCz2SIim1JugMAbbdEdIU_oXajM&callback=app.initMap" async
-        defer></script>
+    <script
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAWzbHsMCz2SIim1JugMAbbdEdIU_oXajM&callback=app.initMap"
+        async defer></script>
+
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/5.11.1/firebase-app.js"></script>
+
+    <!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#config-web-app -->
+
+    <script>
+        // Your web app's Firebase configuration
+        var firebaseConfig = {
+            apiKey: "AIzaSyCclwHiZUCm9IhXiPE8VzweeM5NRubgspc",
+            authDomain: "project2-1f1b6.firebaseapp.com",
+            databaseURL: "https://project2-1f1b6.firebaseio.com",
+            projectId: "project2-1f1b6",
+            storageBucket: "project2-1f1b6.appspot.com",
+            messagingSenderId: "418974804103",
+            appId: "1:418974804103:web:39479a4a73216262"
+        };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+    </script>
 </body>
 
 </html>

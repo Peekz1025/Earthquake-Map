@@ -1,0 +1,92 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+#map {
+    height: 100%;
+}
+
+#controls {
+    position: absolute;
+    top: 100px;
+    left: 0px;
+    padding: 15px;
+    padding-bottom: 0px;
+    margin: 10px;
+    /*			opacity: 0.25;*/
+    background-color: whitesmoke;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px rgba(0, 0, 0, 0.19);
+    border-radius: 5px;
+    -webkit-transition: all 0.25s ease-in-out;
+    transition: all 0.25s ease-in-out;
+}
+
+#controls * {
+    border-radius: 5px;
+}
+
+#controls:hover {
+    opacity: 1;
+}
+
+button {
+    font-weight: bold;
+    width: 100%;
+    transition: .1s;
+}
+
+.inputField {
+    background-color: white;
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 3px 10px rgba(0, 0, 0, 0.19);
+    padding: 7.5px 20px;
+    width: 100%;
+}
+
+.inputField select {
+    float: right;
+    width: 27.5%;
+}
+
+.posInput {
+    float: right;
+    margin-left: 5px;
+    margin-top: -6.5px;
+    width: 80%;
+    text-align: right;
+}
+
+.errorMsg {
+    position: fixed;
+    left: 260px;
+    height: 1.5em;
+    padding: 0 10px 0 10px;
+    box-shadow: 0 2px 4px 0 rgba(200, 0, 0, 0.4), 0 3px 10px rgba(200, 0, 0, 0.4);
+    background-color: whitesmoke;
+    color: red;
+    text-align: center;
+    font-weight: bold;
+    opacity: 0;
+    -webkit-transition: all 0.25s ease-in-out;
+    transition: all 0.25s ease-in-out;
+}
+
+#searchError {
+    text-align: center;
+    color: red;
+    margin: -18%;
+    opacity: 0;
+    text-shadow: 1px 1px 12px #ff0000;
+    -webkit-transition: all 0.25s ease-in-out;
+    transition: all 0.25s ease-in-out;
+}
+
+@media only screen and (max-width: 500px) {
+    #controls {
+        transform: scale(0.5);
+        top: -30px;
+        left: -70px;
+    }
+}
