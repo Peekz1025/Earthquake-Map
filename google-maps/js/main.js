@@ -1,36 +1,20 @@
 let app = new Vue({
   el: "#root",
-
   data: {
     map: null,
     infoWindow: null
   },
-  components: {
-	worldZoom:{
-
-	},
-    Gmaps: () => {
-      return new Promise((resolve, reject) => {
-        let script = document.createElement("script");
-        script.async = true;
-        script.src =
-          "https://maps.googleapis.com/maps/api/js?key=AIzaSyBV7nXkls3Zy6AZ4MoLqvNMMZLKyp5jvLI";
-        document.head.appendChild(script);
-      });
-      initmap();
-    }
-  },
   methods: {
-    worldZoom:function() {
+    worldZoom() {
       map.setZoom(1);
     },
-    defaultZoom:function() {
+    defaultZoom() {
       map.setZoom(16);
     },
-    buildingZoom:function() {
+    buildingZoom() {
       map.setZoom(20);
     },
-    addMarker:function(latitude, longitude, title) {
+    addMarker(latitude, longitude, title) {
       let position = { lat: latitude, lng: longitude };
       let marker = new google.maps.Marker({
         position: this.position,
@@ -39,11 +23,11 @@ let app = new Vue({
       marker.setTitle(this.title);
 
       // Add a listener for the click event
-      google.maps.event.addListener(marker, "click", function(e) {
+      google.maps.event.addListener(marker, "click", function (e) {
         makeInfoWindow(position, title);
       });
     },
-    makeInfoWindow:function(position, msg) {
+    makeInfoWindow(position, msg) {
       // Close old InfoWindow if it exists
       if (this.infowindow) {
         this.infowindow.close();
@@ -55,7 +39,8 @@ let app = new Vue({
         content: "<b>" + this.msg + "</b>"
       });
     },
-    initmap:function() {
+    initmap() {
+      console.log("init");
       let mapOptions = {
         center: { lat: 43.083848, lng: -77.6799 },
         zoom: 16,
@@ -69,6 +54,7 @@ let app = new Vue({
 
       this.map.mapTypeId = "satellite";
       this.map.setTilt(45);
+      console.log("done");
     }
   }
 });
