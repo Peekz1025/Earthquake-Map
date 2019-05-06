@@ -2,22 +2,70 @@
 /*
 	Make `app` a global by using `var`, now we can ...&callback=app.initMap from the link above
 */
+
+// Local storage variables
+let lastLat;
+let lastLng;
+
+class Earthquake {
+  constructor(mag, place, position, url, date) {
+    this.mag = mag;
+    this.place = place;
+    this.position = position;
+    this.url = url;
+    this.date = new Date(date).toString();
+  }
+}
+
 var app = new Vue({
   el: "#app",
   data: {
     URL:
       "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&eventtype=earthquake&minmagnitude=1.0",
-    center: { lat: 43.083848, lng: -77.6799 },
+    currentLat: 43.083848,
+    currentLng: -77.6799,
+    searchMarker: {
+      position: { lat: 43.083848, lng: -77.6799 }
+    },
     limit: 10,
+    earthquakes: [],
     markers: [],
+    circles: [],
     radius: 250,
-    year: 2019
+    year: 2019,
+    ref: null,
+    ip: null
   },
   methods: {
-    // <--- GOOGLE MAPS API --->
+    initFirebase() {
+      var config = {
+        apiKey: "AIzaSyCclwHiZUCm9IhXiPE8VzweeM5NRubgspc",
+        authDomain: "project2-1f1b6.firebaseapp.com",
+        databaseURL: "https://project2-1f1b6.firebaseio.com",
+        projectId: "project2-1f1b6",
+        storageBucket: "project2-1f1b6.appspot.com",
+        messagingSenderId: "418974804103",
+        appId: "1:418974804103:web:39479a4a73216262"
+      }
+
+      firebase.initializeApp(config);
+
+      let database = firebase.database();
+
+      this.ref = database.ref("searches/");
+
+    },
     initMap() {
+      this.currentLat = parseFloat(localStorage.getItem("lastLat"));
+      this.currentLng = parseFloat(localStorage.getItem("lastLng"));
+
+      if (this.currentLat == null || this.currentLng == null || this.currentLat == undefined || this.currentLng == undefined || isNaN(this.currentLat) || isNaN(this.currentLng)) {
+        this.currentLat = 43.083848;
+        this.currentLng = -77.6799;
+      }
+
       const mapOptions = {
-        center: { lat: 43.083848, lng: -77.6799 },
+        center: { lat: this.currentLat, lng: this.currentLng },
         zoom: 6,
         mapTypeId: google.maps.MapTypeId.ROADMAP
       };
@@ -27,28 +75,55 @@ var app = new Vue({
         mapOptions
       );
 
-      let starterMarker = new google.maps.Marker({
-        position: this.center,
+      this.searchMarker = new google.maps.Marker({
+        position: { lat: this.currentLat, lng: this.currentLng },
+        draggable: true,
         map: this.map
       });
 
+      google.maps.event.addListener(this.searchMarker, 'mouseup', function (event) {
+        this.currentLat = event.latLng.lat();
+        this.currentLng = event.latLng.lng();
+
+        localStorage.setItem("lastLat", this.currentLat);
+        localStorage.setItem("lastLng", this.currentLng);
+
+        app.search();
+      });
+
+      this.initFirebase();
+
+      this.search();
+
     },
 
-    addMarker(latitude, longitude, title) {
-      let position = { lat: latitude, lng: longitude };
+    getIP(json) {
+      this.ip = json.ip;
+    },
+
+    addMarker(quake) {
       let marker = new google.maps.Marker({
-        position: position,
+        position: quake.position,
         map: this.map
       });
 
       this.markers.push(marker);
 
-      marker.setTitle(title);
+      //marker.setTitle(title);
       // Add a listener for the click event
-      google.maps.event.addListener(marker, "click", function (e) {
-        // `this` doesn't work here - because it refers to the marker that was clicked on - use `app` instead
-        app.makeInfoWindow(this.position, this.title);
+      google.maps.event.addListener(marker, 'mouseover', function (e) {
+        app.makeInfoWindow(this.position,
+          "<h6><a href='" + quake.url + "' target='_blank'>" + quake.place + "</a></h6>" +
+          "<p><b>Date: </b> " + quake.date + "</p>" +
+          "<p><b> Magnitude: </b>" + quake.mag + "</p>"
+        );
       });
+
+      // remove info window when you mouse out of the earthquake "radius"
+      google.maps.event.addListener(marker, 'mouseout', function (e) {
+        if (this.infoWindow) { this.infoWindow.close(); }
+      });
+
     },
 
     makeInfoWindow(position, msg) {
@@ -67,8 +142,6 @@ var app = new Vue({
       this.map.setZoom(zoomLevel);
     },
 
-    // <--- EARTHQUAKE API --->
-
     search() {
       this.deleteMarkers();
 
@@ -86,10 +159,13 @@ var app = new Vue({
 
       // build url
       let url = this.URL;
-      url += "&latitude=" + this.center.lat;
-      url += "&longitude=" + this.center.lng;
 
-      url += "&maxradiuskm=" + document.querySelector("#maxRadius").value;
+      url += "&latitude=" + parseFloat(localStorage.getItem("lastLat"));
+      url += "&longitude=" + parseFloat(localStorage.getItem("lastLng"));
+
+      console.log(this.radius);
+
+      url += "&maxradiuskm=" + this.radius;
 
       // starttime=2016-01-01&endtime=2016-01-02
       url +=
@@ -132,17 +208,16 @@ var app = new Vue({
       // bail out if there are no results
       if (!count) {
         // Displays error message when no search results found
-        document.querySelector("#searchError").style.margin = "-4%";
-        document.querySelector("#searchError").style.transform = "scale(1)";
-        document.querySelector("#searchError").style.opacity = 1;
-
+        this.$refs.searchError.style.margin = "-4%";
+        this.$refs.searchError.style.transform = "scale(1)";
+        this.$refs.searchError.style.opacity = 1;
         return;
       }
 
       // Hides error message
-      document.querySelector("#searchError").style.margin = "-15%";
-      document.querySelector("#searchError").style.transform = "scale(0)";
-      document.querySelector("#searchError").style.opacity = 0;
+      this.$refs.searchError.style.margin = "-15%";
+      this.$refs.searchError.style.transform = "scale(0)";
+      this.$refs.searchError.style.opacity = 0;
 
       //  build up a list of the results
       let earthquakes = obj.features;
@@ -160,7 +235,15 @@ var app = new Vue({
         let longitude = quake.geometry.coordinates[0];
         let latitude = quake.geometry.coordinates[1];
 
-        this.addMarker(latitude, longitude, title);
+        let position = { lat: latitude, lng: longitude };
+
+        this.earthquakes[limitCount] = new Earthquake(earthquakes[limitCount].properties.mag, earthquakes[limitCount].properties.place, position, earthquakes[limitCount].properties.url, earthquakes[limitCount].properties.time, earthquakes[limitCount].id);
+
+        this.addMarker(this.earthquakes[limitCount]);
+
+        console.log(this.ip);
+
+        this.ref.push("searches/").set({earthquake: this.earthquakes[limitCount], ip: this.ip});
 
         limitCount++;
       }

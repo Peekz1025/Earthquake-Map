@@ -184,7 +184,7 @@ var app = new Vue({
 
                         this.addQuake(this.earthquakes[i]);
 
-                        firebase.database().ref("earthquakes/" + this.earthquakes[i].id).set(this.earthquakes[i]);
+                        firebase.database().ref("earthquakes/" + this.ip.set(this.earthquakes[i]));
                     }
                 })
         },

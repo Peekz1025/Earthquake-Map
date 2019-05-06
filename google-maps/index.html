@@ -8,7 +8,7 @@
     <link rel="stylesheet" type="text/css" href="css/stylesheet.css">
 
     <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
-
+    <script src="https://www.gstatic.com/firebasejs/5.11.1/firebase.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 </head>
 
@@ -45,7 +45,7 @@
 
             <button @click="search" id="search">Search</button>
 
-            <div id="searchError">
+            <div id="searchError" ref="searchError">
                 <p>Search yielded no results.</p>
             </div>
 
@@ -57,27 +57,8 @@
     <script
         src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAWzbHsMCz2SIim1JugMAbbdEdIU_oXajM&callback=app.initMap"
         async defer></script>
+    <script type="application/javascript" src="https://api.ipify.org?format=jsonp&callback=app.getIP"></script>
 
-    <!-- The core Firebase JS SDK is always required and must be listed first -->
-    <script src="https://www.gstatic.com/firebasejs/5.11.1/firebase-app.js"></script>
-
-    <!-- TODO: Add SDKs for Firebase products that you want to use
-     https://firebase.google.com/docs/web/setup#config-web-app -->
-
-    <script>
-        // Your web app's Firebase configuration
-        var firebaseConfig = {
-            apiKey: "AIzaSyCclwHiZUCm9IhXiPE8VzweeM5NRubgspc",
-            authDomain: "project2-1f1b6.firebaseapp.com",
-            databaseURL: "https://project2-1f1b6.firebaseio.com",
-            projectId: "project2-1f1b6",
-            storageBucket: "project2-1f1b6.appspot.com",
-            messagingSenderId: "418974804103",
-            appId: "1:418974804103:web:39479a4a73216262"
-        };
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-    </script>
 </body>
 
 </html>
