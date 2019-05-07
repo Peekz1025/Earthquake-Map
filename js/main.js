@@ -1,12 +1,10 @@
 "use strict";
-/*
-	Make `app` a global by using `var`, now we can ...&callback=app.initMap from the link above
-*/
 
 // Local storage variables
 let lastLat;
 let lastLng;
 
+// Earthquake class
 class Earthquake {
   constructor(mag, place, position, url, date) {
     this.mag = mag;
@@ -17,16 +15,14 @@ class Earthquake {
   }
 }
 
+// Vue initilization
 var app = new Vue({
   el: "#app",
   data: {
     URL:
-      "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&eventtype=earthquake&minmagnitude=1.0",
+    "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&eventtype=earthquake&minmagnitude=1.0",
     currentLat: 43.083848,
     currentLng: -77.6799,
-    searchMarker: {
-      position: { lat: 43.083848, lng: -77.6799 }
-    },
     limit: 10,
     earthquakes: [],
     markers: [],
@@ -34,9 +30,11 @@ var app = new Vue({
     radius: 250,
     year: 2019,
     ref: null,
-    ip: null
+    ip: null,
+    searchMarker: null
   },
   methods: {
+    // Initilizing Firebase
     initFirebase() {
       var config = {
         apiKey: "AIzaSyCclwHiZUCm9IhXiPE8VzweeM5NRubgspc",
@@ -49,12 +47,11 @@ var app = new Vue({
       }
 
       firebase.initializeApp(config);
-
       let database = firebase.database();
-
       this.ref = database.ref("searches/");
-
     },
+
+    // Initilizing Google Map
     initMap() {
       this.currentLat = parseFloat(localStorage.getItem("lastLat"));
       this.currentLng = parseFloat(localStorage.getItem("lastLng"));
@@ -75,10 +72,12 @@ var app = new Vue({
         mapOptions
       );
 
+      // Create search marker
       this.searchMarker = new google.maps.Marker({
         position: { lat: this.currentLat, lng: this.currentLng },
         draggable: true,
-        map: this.map
+        map: this.map,
+        icon: "img/searchIcon.png"
       });
 
       google.maps.event.addListener(this.searchMarker, 'mouseup', function (event) {
@@ -91,25 +90,39 @@ var app = new Vue({
         app.search();
       });
 
+      // Create search maker radius circle
+      this.searchCircle = new google.maps.Circle({
+        strokeColor: '#FFFFFF',
+        strokeOpacity: 0.8,
+        strokeWeight: 2,
+        fillColor: '#CCCCCC',
+        fillOpacity: 0.35,
+        map: this.map,
+        center: { lat: this.currentLat, lng: this.currentLng },
+        radius: this.radius * 1000
+      });
+
       this.initFirebase();
 
       this.search();
-
     },
 
+    // Gets Ip address of client for firebase data purposes
     getIP(json) {
       this.ip = json.ip;
     },
 
+    // Adds markers for earthquakes
     addMarker(quake) {
       let marker = new google.maps.Marker({
         position: quake.position,
-        map: this.map
+        map: this.map,
+        icon: "img/earthquakeIcon.png"
       });
 
+      // Adds marker to array so able to clear them later
       this.markers.push(marker);
 
-      //marker.setTitle(title);
       // Add a listener for the click event
       google.maps.event.addListener(marker, 'mouseover', function (e) {
         app.makeInfoWindow(this.position,
@@ -119,93 +132,107 @@ var app = new Vue({
         );
       });
 
-      // remove info window when you mouse out of the earthquake "radius"
-      google.maps.event.addListener(marker, 'mouseout', function (e) {
-        if (this.infoWindow) { this.infoWindow.close(); }
+      // Draws quake radius circles
+      let quakeCircle = new google.maps.Circle({
+        strokeColor: '#FF0000',
+        strokeOpacity: 0.8,
+        strokeWeight: 2,
+        fillColor: '#FF0000',
+        fillOpacity: 0.35,
+        map: this.map,
+        center: quake.position,
+        radius: quake.mag * quake.mag * 10000
       });
 
+      // Remove info window when mouse moves out of the quake's radius
+      google.maps.event.addListener(quakeCircle, 'mouseout', function (e) {
+        if (app.infoWindow) { app.infoWindow.close(); }
+      });
+
+      this.circles.push(quakeCircle);
     },
 
+    // Creates info window for quakes
     makeInfoWindow(position, msg) {
-      // Close old InfoWindow if it exists
-      if (this.infowindow) this.infowindow.close();
+      //Close old InfoWindow if it exists
+      if (app.infoWindow) app.infoWindow.close();
 
-      // Make a new InfoWindow
-      this.infowindow = new google.maps.InfoWindow({
+      //Make a new InfoWindow
+      app.infoWindow = new google.maps.InfoWindow({
         map: this.map,
         position: position,
-        content: "<b>" + msg + "</b>"
+        content: msg
       });
     },
 
+    // Sets the zoom of the map
     setZoom(zoomLevel) {
       this.map.setZoom(zoomLevel);
     },
 
+    // Searches for quakes with given params
     search() {
+      if (app.infoWindow) {
+        app.infoWindow.close();
+      }
+
+      let lat = parseFloat(localStorage.getItem("lastLat"));
+      let lng = parseFloat(localStorage.getItem("lastLng"));
+
       this.deleteMarkers();
 
-      // end date
+      this.drawSearchMarker(lat, lng);
+
+      // End date
       let endDate = new Date(this.year, 11, 31);
       let endYear = endDate.getFullYear();
       let endMonth = endDate.getMonth();
       let endDay = endDate.getDate();
 
-      // start date
+      // Start date
       let startDate = new Date(this.year, 1, 1);
       let startYear = startDate.getFullYear();
       let startMonth = startDate.getMonth();
       let startDay = startDate.getDate();
 
-      // build url
+      // Builds the url
       let url = this.URL;
 
-      url += "&latitude=" + parseFloat(localStorage.getItem("lastLat"));
-      url += "&longitude=" + parseFloat(localStorage.getItem("lastLng"));
-
-      console.log(this.radius);
-
+      url += "&latitude=" + lat;
+      url += "&longitude=" + lng;
       url += "&maxradiuskm=" + this.radius;
-
-      // starttime=2016-01-01&endtime=2016-01-02
-      url +=
-        "&starttime=" + startYear + "-" + startMonth + "-" + startDay;
+      url += "&starttime=" + startYear + "-" + startMonth + "-" + startDay;
       url += "&endtime=" + endYear + "-" + endMonth + "-" + endDay;
+      url += "&limit=" + this.limit;
 
       let xhr = new XMLHttpRequest();
       xhr.onload = this.jsonLoaded;
+
       xhr.onprogress = e => {
         let xhr = e.target;
+
         if (!xhr.loggedHeaders) {
-          console.log("HEADERS_RECEIVED: " + xhr.getAllResponseHeaders());
           xhr.loggedHeaders = true; // only log the headers once
         }
-        console.log(
-          `PROGRESS: xhr.readyState = ${xhr.readyState}, loaded = ${e.loaded}`
-        );
       };
-      xhr.onerror = e => console.log(`ERROR: ${e}`);
 
-      // xhr.open(method, url, async, user, password)
+      xhr.onerror = e => console.log(`ERROR: ${e}`);
       xhr.open("GET", url, true);
       xhr.send();
     },
 
+    // Loads in quakes in json form and parses the information
     jsonLoaded(e) {
       let xhr = e.target;
-      console.log(
-        `LOADED: xhr.readyState = ${xhr.readyState}, loaded = ${e.loaded}`
-      );
 
       if (xhr.readyState != xhr.DONE) return;
 
       let responseText = xhr.responseText;
-      console.log(`HTTP status code: ${xhr.status}`);
 
       let obj = JSON.parse(responseText);
       let count = obj.metadata.count;
 
-      // bail out if there are no results
+      // Bails out if there are no results
       if (!count) {
         // Displays error message when no search results found
         this.$refs.searchError.style.margin = "-4%";
@@ -219,42 +246,57 @@ var app = new Vue({
       this.$refs.searchError.style.transform = "scale(0)";
       this.$refs.searchError.style.opacity = 0;
 
-      //  build up a list of the results
+      // Builds list of the results
       let earthquakes = obj.features;
 
-      let limitCount = 0;
+      // Count for loop below
+      let i = 0;
 
       for (let quake of earthquakes) {
-        if (limitCount == limit.value) {
-          return;
-        }
-
         let properties = quake.properties;
         let title = properties.title;
         let url = properties.url;
         let longitude = quake.geometry.coordinates[0];
         let latitude = quake.geometry.coordinates[1];
-
         let position = { lat: latitude, lng: longitude };
 
-        this.earthquakes[limitCount] = new Earthquake(earthquakes[limitCount].properties.mag, earthquakes[limitCount].properties.place, position, earthquakes[limitCount].properties.url, earthquakes[limitCount].properties.time, earthquakes[limitCount].id);
+        this.earthquakes[i] = new Earthquake(earthquakes[i].properties.mag, earthquakes[i].properties.place, position, earthquakes[i].properties.url, earthquakes[i].properties.time, earthquakes[i].id);
+        this.addMarker(this.earthquakes[i]);
+        this.ref.push("searches/").set({ earthquake: this.earthquakes[i], date: new Date().toUTCString(), ip: this.ip });
 
-        this.addMarker(this.earthquakes[limitCount]);
-
-        console.log(this.ip);
-
-        this.ref.push("searches/").set({earthquake: this.earthquakes[limitCount], ip: this.ip});
-
-        limitCount++;
+        i++;
       }
     },
 
-    // Deletes all markers in the array by removing references to them.
+    // Calears and draws the radius circle for the search marker
+    drawSearchMarker(latitude, longitude) {
+      this.searchCircle.setMap(null);
+      this.searchCircle = null;
+
+      this.searchCircle = new google.maps.Circle({
+        strokeColor: '#FFFFFF',
+        strokeOpacity: 0.8,
+        strokeWeight: 2,
+        fillColor: '#CCCCCC',
+        fillOpacity: 0.35,
+        map: this.map,
+        center: { lat: latitude, lng: longitude },
+        radius: this.radius * 1000
+      });
+    },
+
+    // Clears all the quake markers and radius circles
     deleteMarkers() {
       for (let i = 0; i < this.markers.length; i++) {
         this.markers[i].setMap(null);
       }
       this.markers = [];
+
+      for (let i = 0; i < this.circles.length; i++) {
+        this.circles[i].setMap(null);
+      }
+      this.circles = [];
     }
+
   }
 });

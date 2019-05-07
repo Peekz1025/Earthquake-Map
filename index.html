@@ -1,13 +1,16 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 
+<!-- Head -->
+
 <head>
     <meta charset="utf-8">
     <title>Earthquake Map</title>
     <meta name="viewport" content="initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="css/stylesheet.css">
-
     <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
+
+    <!-- Scripts -->
     <script src="https://www.gstatic.com/firebasejs/5.11.1/firebase.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 </head>
@@ -15,9 +18,7 @@
 <!-- Content -->
 
 <body>
-
     <div id="map"></div>
-
     <div id="app">
         <div id="controls">
             <p>
@@ -54,9 +55,8 @@
 
     <!-- Scripts -->
     <script src="js/main.js"></script>
-    <script
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAWzbHsMCz2SIim1JugMAbbdEdIU_oXajM&callback=app.initMap"
-        async defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAWzbHsMCz2SIim1JugMAbbdEdIU_oXajM&callback=app.initMap" async
+        defer></script>
     <script type="application/javascript" src="https://api.ipify.org?format=jsonp&callback=app.getIP"></script>
 
 </body>
